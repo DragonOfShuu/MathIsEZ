@@ -1,2 +1,5 @@
 build
 dist
+__pycache__
+
+math_is_easy.spec

@@ -1,3 +1,23 @@
+'''
+===========================================
+
+PROGRAM BY MUSHROOMENDER or DRAGON OF SHUU
+Made to assist in calculating certain 
+math concepts, such as trigonometry
+and circles. This program can calculate
+symbolic math using the SymPy module.
+
+REQUIREMENTS:
+> Python 3.10
+
+OPTIONAL (the system will install it)
+> SymPy
+> pyperclip
+> NumPy
+
+===========================================
+'''
+
 from __future__ import annotations
 
 # =============
@@ -10,55 +30,18 @@ if sys.version_info < (3, 10):
     print("Python version is not supported! Only 3.10 and above is supported!")
     sys.exit(1)
 
-import os
-
-def download_module(module_name: str):
-    '''
-    Downloads a module from the internet.
-    '''
-    if os.system(f"pip{sys.version_info.major}.{sys.version_info.minor} install {module_name}") == 0:
-        print(f"Module {module_name} downloaded!")
-    else:
-        raise ValueError("Module not found!")
-
-
-# Evaluate the presence of non-built-in modules
-modules_not_found = []
-
-try:
-    import pyclip
-except ModuleNotFoundError:
-    modules_not_found.append("pyclip")
-
-try:
-    import numpy as np
-except ModuleNotFoundError:
-    modules_not_found.append("numpy")
-
-try:
-    import sympy as sp
-except ModuleNotFoundError:
-    modules_not_found.append("sympy")
-
-if modules_not_found:
-    print("The following packages could not be located:")
-    for i in modules_not_found:
-        print(f" - {i}")
-    if input("Would you like to download them now? (y/n) > ").lower() == "y":
-        for i in modules_not_found:
-            download_module(i)
-        print("All packages downloaded!")
-        print("Restarting...")
-        os.system(f"python3 {os.path.basename(__file__)}")
-        sys.exit(0)
-    else:
-        print("Please install the missing packages manually.")
-        sys.exit(1)
+# Initalize Package Manager
+import package_manager
 
 # Import the rest of the modules
 import platform as pf
 from math import asin, atan, degrees, sin, sqrt, radians, cos, acos, pi
 from fractions import Fraction
+import pyperclip
+import numpy as np
+import sympy as sp
+import colorama
+import os 
 
 is_radians = False
 
@@ -90,7 +73,7 @@ def stringtobool(string: str):
 
 def give_answer(value: float):
     value = round(value, 5)
-    pyclip.copy(str(value))
+    pyperclip.copy(str(value))
     print(f"Answer is {value} [copied!]")
     return "ez";
 

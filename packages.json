@@ -1,0 +1,18 @@
+{
+    "PyClip": {
+        "import_name": "pyperclip",
+        "version": "1.8.2"
+    },
+    "NumPy": {
+        "import_name": "numpy",
+        "version": "1.23.2"
+    },
+    "SymPy": {
+        "import_name": "sympy",
+        "version": "1.11"
+    },
+    "Colorama": {
+        "import_name": "colorama",
+        "version": "0.4.5"
+    }
+}

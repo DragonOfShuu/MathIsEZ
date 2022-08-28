@@ -1,0 +1,15 @@
+{
+    // Made by me, myself, and I
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Python Build",
+            "type": "shell",
+            "command": "./build_tasks/commands.sh",
+            "windows":{
+                "command": ".\\build_tasks\\commands.cmd"
+            },
+            "problemMatcher": []
+        },
+    ]
+}
