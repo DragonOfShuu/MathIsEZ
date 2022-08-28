@@ -1,4 +1,4 @@
 cd..
-pyinstaller math_is_easy.py --add-data=packages.json:. 
+pyinstaller math_is_easy.py --add-data=packages.json;. --hidden-import="pyperclip"
 cls
-start \dist\math_is_easy\math_is_easy.exe
+.\dist\math_is_easy\math_is_easy.exe
