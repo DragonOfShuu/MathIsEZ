@@ -9,6 +9,15 @@
             "windows":{
                 "command": ".\\build_tasks\\commands.cmd"
             },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            },
             "problemMatcher": []
         },
     ]
