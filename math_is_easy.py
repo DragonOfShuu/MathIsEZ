@@ -46,7 +46,3 @@ def mainmenu(clas: object):
 
 from utils.save_data.save_interpreter import Data
 import menus
-
-# if __name__ == "__main__":
-#     main_menu().execute()
-#     print("Goodbye :/")

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from utils.general_utils import *
 from utils.save_data.save_interpreter import Data
-from utils.MathObject import MathObject
+from utils.MathObjects import MathObject
 
 class SwitchRadians:
     text = "Switch is_radians"

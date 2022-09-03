@@ -5,7 +5,7 @@ from math import asin, sin, sqrt, cos, acos, pi
 import numpy as np
 import sympy as sp
 
-from utils.MathObject import MathObject
+from utils.MathObjects import MathObject
 
 class HeronEquation(MathObject):
     text = "Heron's Equation"
