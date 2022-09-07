@@ -15,12 +15,24 @@ class lawofsinecosines(menu):
 class trig_equations_menu(menu):
     text = "Equations"
     def __init__(self):
-        super().__init__([QuadraticFormula, HeronEquation, PythagoreanTheorem])
+        super().__init__([
+            QuadraticFormula, 
+            # HeronEquation, 
+            PythagoreanTheorem
+            ])
 
 class trig_graph_menu(menu):
     text = "Graphing"
     def __init__(self):
         super().__init__([Graph, ParametricEquation])
+
+class Polynomials(header_menu):
+    text = "Polynomials"
+    def __init__(self):
+        super().__init__([
+            PolynomialGraphing,
+            PolynomialGraphing_SolveU
+        ])
 
 class trig_menu(header_menu):
     text = "Trig"
@@ -55,5 +67,6 @@ class main_menu(header_menu):
     def __init__(self):
         super().__init__([
                 circle_menu,
-                trig_menu
+                trig_menu,
+                Polynomials
             ])

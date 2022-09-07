@@ -1,9 +1,8 @@
-from math import pi
-from shutil import ExecError
 from utils.general_utils import *
+from math import pi, floor
 
 class MathObject:
-    text = "while_run default"
+    text = "MathObject default"
     addon = "[]"
     f'''
     text: {text}
@@ -13,25 +12,41 @@ class MathObject:
         while True:
             try:
                 answer = self.Solve()
-                if answer != False:
+                if answer == SuccessionType.NO_COPY:
+                    break;
+                elif answer != SuccessionType.RUN_AGAIN:
                     give_answer(answer)
                     break;
             except ValueError:
                 print("\nNot a number.\n")
             except Exception as e:
-                print("\nSomething went wrong.")
-                stringtobool(question("Would you like to see the error? [y/n]"))
+                logger.exception("An exception has occurred in MathObject:")
+                print("\nSomething went wrong. Check your submission information.")
     
     def Solve(self) -> float:
         return 0.1;
 
-# class angle:
-#     def __new__(self, value: float | None, is_radians: bool):
-#         self.is_radians = is_radians 
-#         if self.is_radians:
-#             if 0 <= value <= 2*pi: 
-#                 self.value = value 
-#                 return self;
-#             else: raise ValueError(f"Value was not within 0 and 2*pi [Value: {value}]")
-#         else:
-#             if 0 <= value <= 360
+class angle:
+    '''
+    Class for angles; giving information
+    one might need out of the box!
+
+    times_over
+    '''
+    def __init__(self, value: float | None, is_radians: bool):
+        self.is_radians = is_radians 
+        self.value = value 
+    
+    @property 
+    def value(self):
+        return self._value;
+    
+    @value.setter
+    def value(self, value):
+        self._value = value
+        if self.is_radians:
+            self.times_over = floor(value / 2*pi)
+            self.normalized_angle = value % 2*pi 
+        else:
+            self.times_over = floor(value / 360)
+            self.normalized_angle = value % 360

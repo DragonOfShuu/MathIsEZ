@@ -1,9 +1,27 @@
 from math import atan, degrees, radians
 from utils.save_data.save_interpreter import Data
 from fractions import Fraction
+from enum import Enum
+import sympy as sp
 import platform as pf
+import functools
 import pyperclip
+import logging
 import os
+
+logger = logging.getLogger("program")
+
+def deprecated(func):
+    '''
+    This is for classes that are
+    possibly or are going to be
+    removed in the future.
+    '''
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        logger.warning("This method is deprecated; it either will not be available soon, or shouldn't be used.")
+        return func(*args, **kwargs);
+    return wrapper;
 
 def question(text, /, beckon_text: str = ">>> "):
     print(text)
@@ -27,23 +45,52 @@ def stringtobool(string: str):
     elif string.lower() in false_strings: return False
     else: raise ValueError();
 
+@deprecated
 def give_answer(value: float):
     value = round(value, 5)
     pyperclip.copy(str(value))
     print(f"Answer is {value} [copied!]")
     return "ez";
 
+@deprecated
 def evaluate(value, /, builtInException=True):
     if builtInException: 
         try:
             return float(eval(value))
         except ValueError:
             raise ValueError();
-        except Exception:
+        except Exception as e:
+            logger.exception("An error has occurred in evaluate:")
             print("Something went wrong")
     else:
         return float(eval(value));
+    
+def sympify(value, /, builtInException=True):
+    if builtInException:
+        try:
+            return sp.sympify(value)
+        except sp.SympifyError:
+            raise NotANumber;
+        except Exception:
+            print("Something went wrong...")
+            logging.exception("An error has occurred in sympify:")
+    return sp.sympify(value);
 
+def request(question_text, /, builtInException: bool = True):
+    value = question(question_text)
+    if not builtInException: sp.sympify(value)
+    try:
+        value = sp.sympify(value)
+    except sp.SympifyError:
+        raise NotANumber;
+
+def bulk_request(question_texts: list[str], /, builtInExcept: bool = True) -> list[sp.Number]:
+    returnable_list = []
+    for i in question_texts:
+        returnable_list.append(request(i))
+    return returnable_list;
+
+@deprecated
 def fraction_to_string(frac: Fraction):
     '''
     Converts a fraction to a string.
@@ -64,6 +111,7 @@ def degdec(value):
     '''
     return value if Data().data_raw['is_radians'] else degrees(value);
 
+@deprecated
 def get_angle(a: float, b: float):
     '''
     returns (main_angle, angle)
@@ -90,3 +138,14 @@ def get_angle(a: float, b: float):
     
     tangle = radians(tangle) if Data().data_raw['is_radians'] else tangle
     return (main_angle, tangle);
+
+class SuccessionType(Enum):
+    NO_COPY = 0
+    RUN_AGAIN = 1
+
+class NotANumber(Exception):
+    '''
+    Raised when a value
+    given is not a number
+    '''
+    pass

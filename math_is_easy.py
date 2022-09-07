@@ -35,7 +35,31 @@ import package_manager
 
 # Import the rest of the modules
 import functools
-import colorama
+import logging 
+import datetime
+import time
+import os
+
+if __name__ == "__main__":
+    alllogs = os.listdir("logs/")
+
+    if len(alllogs) >= 5:
+        # Oldest file will have a lower number.
+
+        oldest_name = ""
+        oldest_time = time.time()
+        for i in alllogs:
+            comparable = os.path.getmtime(f"logs/{i}")
+            if comparable < oldest_time:
+                oldest_name = i
+                oldest_time = comparable
+        os.remove(f"logs/{oldest_name}")
+
+    logger = logging.getLogger("program")
+    times = datetime.datetime.today()
+    time_now = f"logs/math_is_ez_{times.year}y_{times.month}mo_{times.day}d_{times.hour}h_{times.minute}min_{times.second}s.log"
+    logging.basicConfig(format='[%(asctime)s] [%(process)d] [%(levelname)s] - %(message)s', filename=time_now, level=0)
+    logger.info("Program Started.")
 
 def mainmenu(clas: object):
     @functools.wraps(clas)
@@ -44,5 +68,4 @@ def mainmenu(clas: object):
         return value;
     return wrapper();
 
-from utils.save_data.save_interpreter import Data
 import menus

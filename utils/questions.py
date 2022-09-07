@@ -1,4 +1,5 @@
 from utils.general_utils import stringtobool
+import sympy as sp
 
 class Question:
     '''
@@ -13,7 +14,7 @@ class Question:
     def __str__(self):
         return self.question
     
-    def main_question(self, comparable: type, answer: float | int | bool | str):
+    def main_question(self, comparable: type, answer: float | int | bool | str | sp.Number):
         try:
             if comparable == type(float):
                 return float(answer)
@@ -21,6 +22,8 @@ class Question:
                 return int(answer)
             elif comparable == type(bool):
                 return stringtobool(answer)
+            elif comparable == type(sp.Number):
+                return sp.sympify(answer)
             else:
                 return answer;
         except Exception:
@@ -29,16 +32,14 @@ class Question:
 
     # Ask various questions
     def execute(self):
-        while True:
+        returnable = None
+        while returnable == None:
             print(self.question)
             answer = input("> " if self.beckon_text == None else self.beckon_text)
             comparable = type(str if self.answer_type else self.answer_type)
             
             returnable = self.main_question(comparable, answer)
-            if returnable == None:
-                continue;
-            else:
-                return returnable;
+        return returnable;
 
 class Questionnaire:
     '''

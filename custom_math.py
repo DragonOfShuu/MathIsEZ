@@ -7,6 +7,11 @@ import sympy as sp
 
 from utils.MathObjects import MathObject
 
+# This object needs work. Solve
+# errors because Questionnaire needs
+# to evaluate each individual answer.
+# Commenting out from the menu
+# for now.
 class HeronEquation(MathObject):
     text = "Heron's Equation"
     addon = "[a, b, c] [SSS]"
@@ -15,7 +20,7 @@ class HeronEquation(MathObject):
             "Give side a",
             "Give side b",
             "Give side c"
-        ]))
+        ]).execute())
 
         s = (a+b+c)/2
         return round(sqrt(s*(s-a)*(s-b)*(s-c)), 3);
@@ -73,24 +78,29 @@ class PythagoreanTheorem(MathObject):
         elif (a and c) and not b:
             answer = sqrt((evaluate(c)**2)-(a**2))
         else:
-            print("Entered incorrectly. a must have a value, and either b or c has to have a value, and either b or c cannot have a value.")
+            print("Entered incorrectly. a must have a value, and either b or c has to have a value. b and c cannot simultaneously store a value.")
+            logger.debug("User entered incorrect value; A *must* have a value, and either B or C have to hava value. B and C cannot both have a value.")
             return False;
         return answer;
 
 class QuadraticFormula(MathObject):
     text = "Quadratic Formula"
     addon = "[a, b, c]"
-    def Solve(self) -> float:
-        a = evaluate(question("a"))
-        b = evaluate(question("b"))
-        c = evaluate(question("c"))
+    def Solve(self) -> sp.Number:
+        a = sympify(question("a"))
+        b = sympify(question("b"))
+        c = sympify(question("c"))
 
-        positive = (-b + sqrt((b**2)-(4*a*c)))/(2*a)
-        negative = (-b - sqrt((b**2)-(4*a*c)))/(2*a)
+        positive, negative = self.Answer(a, b, c)
 
         print(f"x = {positive} or {negative}")
         print("[Copied Positive]")
         return positive;
+
+    def Answer(self, a: sp.Number, b: sp.Number, c: sp.Number) -> tuple[sp.Number, sp.Number]:
+        positive = ((-1*b) + sp.sqrt((b**2)-(4*a*c)))/(2*a)
+        negative = ((-1*b) - sp.sqrt((b**2)-(4*a*c)))/(2*a)
+        return (positive, negative)
 
 class ComplexNumberToTrig(MathObject):
     text = "Complex Number to trig"
@@ -108,6 +118,7 @@ class ComplexNumberToTrig(MathObject):
         angle = get_angle(a, b)[1]
 
         print(f"{c}(cos({angle}) + isin({angle}))")
+        return SuccessionType.NO_COPY;
 
 class TrigToComplexNumber(MathObject):
     '''
@@ -121,8 +132,9 @@ class TrigToComplexNumber(MathObject):
 
         a = r*cos(angle)
         b = r*sin(angle)
-
+    
         print(f"{a} + {b}i")
+        return SuccessionType.NO_COPY
 
 class ParametricEquation(MathObject):
     text = "Parametric Equations"
@@ -142,7 +154,7 @@ class ParametricEquation(MathObject):
         print("| t | x | y |")
         for count,i in enumerate(t_range):
             print(f"| {i} | {listx[count]} | {listy[count]} |")
-        return 1;
+        return SuccessionType.NO_COPY;
 
 class CountTriangles(MathObject):
     text = "Count Triangles"
@@ -166,7 +178,7 @@ class CountTriangles(MathObject):
             return 2;
         else: 
             print("error...")
-            return 'lktkjfyhvtigwnusdkfnhn boi sufkjc';
+            return SuccessionType.NO_COPY;
 
 # ===========
 # = Circles =
@@ -234,7 +246,8 @@ class CircleFromCenterAndTangent(MathObject):
                 t_x = t_x.subs(y_sym, y) # 3+2
             except AttributeError:
                 print("Error: Make sure you use x_sym, not x")
-                return False;
+                logger.debug("User may have used 'x' instead of 'x_sym'")
+                return SuccessionType.RUN_AGAIN;
             t_x = sp.Eq(x_sym, t_x) # x = 3+2
             x1 = sp.solve(t_x, x_sym)[0] # x = 5
             y1 = y # y = 3
@@ -256,8 +269,7 @@ class CircleFromCenterAndTangent(MathObject):
 
         # Print the answer
         print(f"(x + {x*-1})^2 + (y + {y*-1})^2 = {r}^2")
-        print("(copied the radius)")
-        return r;
+        return SuccessionType.NO_COPY;
 
     def yequals(self, x, y, answer) -> float:
         # Symbolize the vars
@@ -274,7 +286,8 @@ class CircleFromCenterAndTangent(MathObject):
                 t_x = t_x.subs(x_sym, x)
             except AttributeError:
                 print("Error: Make sure you use x_sym, not x")
-                return False;
+                logger.debug("User may have used 'x' instead of 'x_sym'")
+                return SuccessionType.RUN_AGAIN;
             t_x = sp.Eq(y_sym, t_x)
             x1 = x
             y1 = sp.solve(t_x, y_sym)[0]
@@ -297,11 +310,8 @@ class CircleFromCenterAndTangent(MathObject):
 
         # Print the answer
         print(f"(x + {x*-1})^2 + (y + {y*-1})^2 = {r}^2")
-        print("(copied the radius)")
-        return r;
+        return SuccessionType.NO_COPY;
         
-            
-
 # ==============
 # = Other Math =
 # ==============
@@ -318,7 +328,7 @@ class Graph(MathObject):
         print("| x | y |")
         for count,x in enumerate(range):
             print(f"| {x} | {eval(expression)}")
-        return 1;
+        return SuccessionType.NO_COPY;
 
 class DistanceFormula(MathObject):
     text = "Distance Formula"
@@ -332,9 +342,70 @@ class DistanceFormula(MathObject):
         y2 = evaluate(question("y2"))
         return self.Answer(x1, y1, x2, y2);
 
-
 class EvaluateExpression(MathObject):
     text = "Evaluate"
     addon = ""
     def Solve(self) -> float:
         return eval(question("Give an expression."));
+
+# ========
+# Polynomials
+# ========
+
+class PolynomialGraphing(MathObject):
+    text = "Polynomial Graphing"
+    addon = "[a, b, c]"
+    def Solve(self) -> float:
+        a = sympify(question("a"))
+        b = sympify(question("b"))
+        c = sympify(question("c"))
+
+        # print("doing h...")
+        h = (b*-1)/(2*a)
+        # print("doing k...")
+        k = a*(h**2) + b*(h) + c
+
+        xinter = QuadraticFormula().Answer(a, b, c)
+        yinter = c
+
+        if a < 0:
+            Range = f"(-oo, {k}]"
+        elif a > 0:
+            Range = f"[{k}, oo)"
+        else:
+            Range = k
+
+        print(f"(h, k)")
+        print(f"({h}, {k})")
+        print(f"y = {a}(x + {h*-1})^2 + {k}")
+        print(f"x intercepts = ({xinter[0]}, 0), ({xinter[1]}, 0)")
+        print(f"y intercept = (0, {yinter})")
+        print(f"Range = {Range}")
+        print(f"Point of Reference = ({h+1}, {k*a})")
+
+        return SuccessionType.NO_COPY;
+    
+class PolynomialGraphing_SolveU(MathObject):
+    text = "Polynomial Graphing"
+    addon = "[Solve U] [a, b, c, u]"
+    def Solve(self) -> float:
+        # Define x as a symbol
+        x = sp.Symbol('x')
+
+        # Gather a, b, c
+        a = sympify(question("a"))
+        b = sympify(question("b"))
+        c = sympify(question("c"))
+
+        # Gather equation for u
+        print("\nx is x\n")
+        u = sympify(question('u'))
+
+        # Using x instead of u; pretend it is u
+        equation_u = a*(x**2) + b*(x) + c
+        # Solves for u
+        u_equals = sp.solve(equation_u, x)
+        x_equals = [sp.solve(sp.Eq(u_equals[0], u), x), sp.solve(sp.Eq(u_equals[1], u), x)]
+
+        print(f"x = {x_equals}")
+        return SuccessionType.NO_COPY;
