@@ -6,6 +6,7 @@ import sympy as sp
 import platform as pf
 import functools
 import pyperclip
+import colorama as col
 import logging
 import os
 
@@ -46,11 +47,13 @@ def stringtobool(string: str):
     else: raise ValueError();
 
 @deprecated
-def give_answer(value: float):
-    value = round(value, 5)
+def give_answer(value: any):
+    try:
+        value = round(value, 5)
+    except Exception:
+        pass
     pyperclip.copy(str(value))
-    print(f"Answer is {value} [copied!]")
-    return "ez";
+    print(f"Copied: {value}")
 
 @deprecated
 def evaluate(value, /, builtInException=True):
@@ -76,20 +79,37 @@ def sympify(value, /, builtInException=True):
             logging.exception("An error has occurred in sympify:")
     return sp.sympify(value);
 
-def request(question_text, /, builtInException: bool = True):
+def request(question_text, /, builtInException: bool = True, accept_none: bool = False) -> any:
     value = question(question_text)
+    if accept_none and (value == ''): return None;
     if not builtInException: sp.sympify(value)
     try:
-        value = sp.sympify(value)
+        return sp.sympify(value)
     except sp.SympifyError:
         raise NotANumber;
 
-def bulk_request(question_texts: list[str], /, builtInExcept: bool = True) -> list[sp.Number]:
+def request_bulk(question_texts: list[str], /, builtInExcept: bool = True) -> list[sp.Number]:
     returnable_list = []
     for i in question_texts:
         returnable_list.append(request(i))
     return returnable_list;
 
+def send(sendable: str, /, prefix: str = "", suffix: str = ""):
+    print(f"{prefix} {sendable} {suffix}")
+
+def equality(variable: str, value: sp.Number | sp.Expr | str):
+    if (Data().data_raw["pretty_mode"]):
+        print()
+        print(f"{variable} = ")
+        sp.pprint(value)
+        return;
+    print(f"{variable} = {value}")
+
+def problem(text: str, /, color: bool = True, log: bool = True):
+    print(f"\n{col.Fore.RED if color else ''}> {text}{col.Fore.WHITE}")
+    if log: logger.warn(text)
+    return SuccessionType.RUN_AGAIN;
+    
 @deprecated
 def fraction_to_string(frac: Fraction):
     '''
@@ -144,8 +164,5 @@ class SuccessionType(Enum):
     RUN_AGAIN = 1
 
 class NotANumber(Exception):
-    '''
-    Raised when a value
-    given is not a number
-    '''
-    pass
+    def __init__(self):
+        super.__init__()

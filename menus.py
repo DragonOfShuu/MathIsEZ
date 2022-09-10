@@ -30,8 +30,9 @@ class Polynomials(header_menu):
     text = "Polynomials"
     def __init__(self):
         super().__init__([
-            PolynomialGraphing,
-            PolynomialGraphing_SolveU
+            StandardToVertex,
+            Polynomial_SolveU,
+            SolvePolynomial
         ])
 
 class trig_menu(header_menu):

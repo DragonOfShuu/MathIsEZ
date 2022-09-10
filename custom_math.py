@@ -334,31 +334,31 @@ class DistanceFormula(MathObject):
     text = "Distance Formula"
     addon = "[x1, y1] [x2, y2]"
     def Answer(self, x1, y1, x2, y2) -> float:
-        return sqrt((x2-x1)**2 + (y2-y1)**2);
+        return sp.sqrt((x2-x1)**2 + (y2-y1)**2);
+
     def Solve(self) -> float:
-        x1 = evaluate(question("x1"))
-        y1 = evaluate(question("y1"))
-        x2 = evaluate(question("x2"))
-        y2 = evaluate(question("y2"))
+        x1, x2, y1, y2 = request_bulk(["x1", "x2", "y1", "y2"])
         return self.Answer(x1, y1, x2, y2);
 
 class EvaluateExpression(MathObject):
     text = "Evaluate"
     addon = ""
     def Solve(self) -> float:
-        return eval(question("Give an expression."));
+        expression = request("Give an expression. (no vars)")
+
+        equality("Symbolic Expression", expression)
+        equality("Reduced Expression", expression.evalf())
+        return expression;
 
 # ========
 # Polynomials
 # ========
 
-class PolynomialGraphing(MathObject):
-    text = "Polynomial Graphing"
+class StandardToVertex(MathObject):
+    text = "Standard to Vertex"
     addon = "[a, b, c]"
     def Solve(self) -> float:
-        a = sympify(question("a"))
-        b = sympify(question("b"))
-        c = sympify(question("c"))
+        a,b,c = request(["a", "b", "c"])
 
         # print("doing h...")
         h = (b*-1)/(2*a)
@@ -375,37 +375,71 @@ class PolynomialGraphing(MathObject):
         else:
             Range = k
 
-        print(f"(h, k)")
-        print(f"({h}, {k})")
-        print(f"y = {a}(x + {h*-1})^2 + {k}")
-        print(f"x intercepts = ({xinter[0]}, 0), ({xinter[1]}, 0)")
-        print(f"y intercept = (0, {yinter})")
-        print(f"Range = {Range}")
-        print(f"Point of Reference = ({h+1}, {k*a})")
+        send(f"(h, k)")
+        send(f"({h}, {k})")
+        equality("y", f"{a}(x + {h*-1})^2 + {k}")
+        equality("x intercepts", f"({xinter[0]}, 0), ({xinter[1]}, 0)")
+        equality("y intercept", f"(0, {yinter})")
+        equality("Range", Range)
+        equality("Point of Reference", f"({h+1}, {k*a})")
 
         return SuccessionType.NO_COPY;
     
-class PolynomialGraphing_SolveU(MathObject):
-    text = "Polynomial Graphing"
+class Polynomial_SolveU(MathObject):
+    text = "Polynomial Solve for U"
     addon = "[Solve U] [a, b, c, u]"
     def Solve(self) -> float:
         # Define x as a symbol
         x = sp.Symbol('x')
 
         # Gather a, b, c
-        a = sympify(question("a"))
-        b = sympify(question("b"))
-        c = sympify(question("c"))
+        # a = sympify(question("a"))
+        # b = sympify(question("b"))
+        # c = sympify(question("c"))
+        a, b, c = request_bulk(["a", "b", "c"])
 
         # Gather equation for u
-        print("\nx is x\n")
-        u = sympify(question('u'))
+        send("\nx is x\n")
+        u = request("u")
 
         # Using x instead of u; pretend it is u
         equation_u = a*(x**2) + b*(x) + c
         # Solves for u
         u_equals = sp.solve(equation_u, x)
-        x_equals = [sp.solve(sp.Eq(u_equals[0], u), x), sp.solve(sp.Eq(u_equals[1], u), x)]
+        # Solves for u in the x
+        x_equals = [sp.solve(sp.Eq(u_equals[0], u), x), 
+                    sp.solve(sp.Eq(u_equals[1], u), x)]
 
-        print(f"x = {x_equals}")
-        return SuccessionType.NO_COPY;
+        equality("x", x_equals)
+        return x_equals;
+    
+class SolvePolynomial(MathObject):
+    text = "Solve Polynomial"
+    addon = "[a, b, c, ...]"
+    def Solve(self) -> any:
+        c = request("constant")
+        send("Press Enter when you are finished entering values.")
+        numbered_objects = []
+        countable = 1
+        while True:
+            new_value = request(f"x^{countable}", accept_none=True)
+
+            if new_value == None: break;
+
+            numbered_objects.append(new_value)
+            countable += 1
+
+        if not 2 <= len(numbered_objects) <= 20: return problem("You cannot have less than 2 polynomials, or more than 20.")
+
+        x = sp.Symbol('x')
+        # Start polynomial using the constant
+        polynomial = sympify(c)
+        # Add each polynomial term one by one
+        for count,i in enumerate(numbered_objects): polynomial += (x**(count+1))*i
+        # Solve for x
+        zeros = sp.solve(polynomial, x)
+
+        #print equation
+        equality("y", polynomial)
+        equality("zeroes or xintercepts", zeros)
+        return zeros;

@@ -41,6 +41,7 @@ import time
 import os
 
 if __name__ == "__main__":
+    if not os.path.exists("logs/"): os.mkdir("logs")
     alllogs = os.listdir("logs/")
 
     if len(alllogs) >= 5:

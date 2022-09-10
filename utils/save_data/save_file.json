@@ -1,1 +1,4 @@
-{"is_radians": false}
+{
+    "is_radians": false,
+    "pretty_mode": true
+}
