@@ -1,4 +1,6 @@
+import shutil
 import json
+import os
 
 class Data:
     file_name = "utils/save_data/save_file.json"
@@ -42,5 +44,8 @@ class Data:
         this function; simply
         get and set data.
         '''
-        with open(self.file_name, 'r', encoding="utf-8") as x:
-            self._data_raw = json.loads(x.read())
+        try:
+            with open(self.file_name, 'r', encoding="utf-8") as x:
+                self._data_raw = json.loads(x.read())
+        except FileNotFoundError:
+            shutil.copyfile("utils/save_data/default_save_info.json", "utils/save_data/save_file.json")

@@ -1,3 +1,4 @@
+from ast import Expression
 from utils.general_utils import *
 from utils.questions import *
 from utils.save_data.save_interpreter import Data
@@ -429,7 +430,7 @@ class SolvePolynomial(MathObject):
             numbered_objects.append(new_value)
             countable += 1
 
-        if not 2 <= len(numbered_objects) <= 20: return problem("You cannot have less than 2 polynomials, or more than 20.")
+        if not 2 <= len(numbered_objects) <= 20: return problem("You cannot have less than 2 terms, or more than 20.")
 
         x = sp.Symbol('x')
         # Start polynomial using the constant
@@ -438,8 +439,32 @@ class SolvePolynomial(MathObject):
         for count,i in enumerate(numbered_objects): polynomial += (x**(count+1))*i
         # Solve for x
         zeros = sp.solve(polynomial, x)
+        yintercept = polynomial.subs(x, 0)
+        factored = sp.factor(polynomial)
 
-        #print equation
+        # Clear screen
+        clear()
+        # Print equation
         equality("y", polynomial)
+        equality("y", factored)
         equality("zeroes or xintercepts", zeros)
+        equality("y intercept", yintercept)
+        print("\n======")
+        SubX(polynomial, x).execute()
+        # sp.plot(polynomial, line_color="blue")
         return zeros;
+
+class SubX(MathObject):
+    text = ""
+    addon = ""
+    def __init__(self, expression: sp.Expr, replaced_term: sp.Symbol):
+        self.expression = expression
+        self.x = replaced_term
+    def Solve(self) -> None:
+        while True:
+            replaceable = request("Insert value (press Enter to exit): ", accept_none=True)
+            if replaceable == None: break
+            print()
+            send(self.expression.subs(self.x, replaceable))
+            print()
+        return SuccessionType.NO_COPY;

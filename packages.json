@@ -14,5 +14,9 @@
     "Colorama": {
         "import_name": "colorama",
         "version": "0.4.5"
+    },
+    "MatPlotLib": {
+        "import_name": "matplotlib",
+        "version": "3.5.3"
     }
 }

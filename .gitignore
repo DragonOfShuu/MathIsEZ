@@ -4,4 +4,6 @@ math_is_easy.spec
 __pycache__
 logs
 
+utils/save_data/save_file.json
+
 .DS_Store

@@ -59,7 +59,9 @@ if __name__ == "__main__":
     logger = logging.getLogger("program")
     times = datetime.datetime.today()
     time_now = f"logs/math_is_ez_{times.year}y_{times.month}mo_{times.day}d_{times.hour}h_{times.minute}min_{times.second}s.log"
-    logging.basicConfig(format='[%(asctime)s] [%(process)d] [%(levelname)s] - %(message)s', filename=time_now, level=0)
+    logging.basicConfig(format='[%(asctime)s] [%(process)d] [%(levelname)s] - %(message)s', 
+                        filename=time_now, 
+                        level=20)
     logger.info("Program Started.")
 
 def mainmenu(clas: object):

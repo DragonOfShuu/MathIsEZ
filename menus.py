@@ -1,6 +1,7 @@
+from math_is_easy import mainmenu
 from custom_math import *
 from utils.menu import *
-from math_is_easy import mainmenu
+from preferences import *
 
 # ==================
 # = Subclass Menus =
