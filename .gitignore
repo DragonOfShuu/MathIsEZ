@@ -5,5 +5,6 @@ __pycache__
 logs
 
 save_file.json
+utils/save_data/save_file
 
 .DS_Store
