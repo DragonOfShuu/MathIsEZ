@@ -27,7 +27,7 @@ def deprecated(func):
 def question(text, /, beckon_text: str = ">>> "):
     print(text)
     returnable = input(beckon_text).strip(" ")
-    return returnable;
+    return returnable
 
 def clear():
     if pf.system() == "Windows": os.system("cls")
@@ -68,7 +68,7 @@ def evaluate(value, /, builtInException=True):
     else:
         return float(eval(value));
     
-def sympify(value, /, builtInException=True):
+def sympify_exc(value, /, builtInException=True):
     if builtInException:
         try:
             return sp.sympify(value)
@@ -77,22 +77,31 @@ def sympify(value, /, builtInException=True):
         except Exception:
             print("Something went wrong...")
             logging.exception("An error has occurred in sympify:")
-    return sp.sympify(value);
+    return sp.sympify(value)
 
 def request(question_text, /, builtInException: bool = True, accept_none: bool = False) -> any:
     value = question(question_text)
-    if accept_none and (value == ''): return None;
-    if not builtInException: sp.sympify(value)
-    try:
-        return sp.sympify(value)
-    except sp.SympifyError:
-        raise NotANumber;
+    if accept_none and (value == ''): return None
+    # if not builtInException: sp.sympify(value)
+    # try:
+    #     return sp.sympify(value)
+    # except sp.SympifyError:
+    #     raise NotANumber
+    return sympify_exc(value, builtInException)
 
-def request_bulk(question_texts: list[str], /, builtInExcept: bool = True) -> list[sp.Number]:
+def request_boolean(text: str, beckon_text: str = "(y/n)> "):
+    while True:
+        answer: str = question(text, beckon_text)
+        try:
+            return stringtobool(answer)
+        except ValueError:
+            print("That was not a yes or no answer.")
+
+def request_bulk(question_texts: list[str], /, built_in_except: bool = True, allow_none: bool = False) -> list[sp.Number]:
     returnable_list = []
     for i in question_texts:
-        returnable_list.append(request(i))
-    return returnable_list;
+        returnable_list.append( request(i, builtInException=built_in_except, accept_none=allow_none) )
+    return returnable_list
 
 def send(sendable: str, /, prefix: str = "", suffix: str = ""):
     print(f"{prefix} {sendable} {suffix}")
@@ -160,8 +169,8 @@ def get_angle(a: float, b: float):
     return (main_angle, tangle);
 
 class SuccessionType(Enum):
-    NO_COPY = 0
-    RUN_AGAIN = 1
+    NO_COPY = "_no_copy"
+    RUN_AGAIN = "_run_again"
 
 class NotANumber(Exception):
     def __init__(self):

@@ -11,6 +11,6 @@
             "program": "${workspaceFolder}/math_is_easy.py",
             "console": "integratedTerminal",
             "justMyCode": true
-        }
+        },
     ]
 }

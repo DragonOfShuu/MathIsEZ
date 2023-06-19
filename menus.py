@@ -25,7 +25,19 @@ class trig_equations_menu(menu):
 class trig_graph_menu(menu):
     text = "Graphing"
     def __init__(self):
-        super().__init__([Graph, ParametricEquation])
+        super().__init__([
+            Graph, 
+            ParametricEquation,
+            SolveWave
+        ])
+
+class TrigIdentities(menu):
+    text = "Identities"
+    def __init__(self):
+        super().__init__([
+            SinDifference,
+            CosDifference
+        ])
 
 class Polynomials(header_menu):
     text = "Polynomials"
@@ -36,6 +48,18 @@ class Polynomials(header_menu):
             SolvePolynomial
         ])
 
+class vector_menu(menu):
+    text = "Vectors"
+    def __init__(self):
+        super().__init__([
+            VectorOperations,
+            PolarCoorToCoords,
+            MagnitudeOfVector,
+            DotProduct,
+            Projection,
+            VectorWork
+        ])
+
 class trig_menu(header_menu):
     text = "Trig"
     def __init__(self):
@@ -44,12 +68,15 @@ class trig_menu(header_menu):
                 lawofsinecosines, 
                 trig_equations_menu, 
                 trig_graph_menu, 
+                vector_menu,
                 # Calculations
                 CountTriangles,
                 ComplexNumberToTrig,
                 TrigToComplexNumber,
+                TrigIdentities,
                 EvaluateExpression
             ])
+
 
 # = Circles =
 

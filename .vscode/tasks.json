@@ -5,9 +5,9 @@
         {
             "label": "Python Build",
             "type": "shell",
-            "command": "./build_tasks/commands.sh",
+            "command": "source ${workspaceFolder}/.venv/Scripts/activate; ./build_tasks/commands.sh",
             "windows":{
-                "command": ".\\build_tasks\\commands.cmd"
+                "command": "${workspaceFolder}\\.venv\\Scripts\\Activate.ps1; .\\build_tasks\\commands.cmd"
             },
             "group": {
                 "kind": "build",

@@ -31,7 +31,7 @@ if sys.version_info < (3, 10):
     sys.exit(1)
 
 # Initalize Package Manager
-import package_manager
+# import package_manager
 
 # Import the rest of the modules
 import functools

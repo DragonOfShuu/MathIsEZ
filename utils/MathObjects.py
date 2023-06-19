@@ -1,6 +1,12 @@
-from utils.general_utils import *
+# from utils.general_utils import *
+from utils.general_utils import SuccessionType, give_answer
 from math import pi, floor
+import logging
+# from abc import ABC, abstractmethod
 
+logger = logging.getLogger("program")
+
+# @ABC
 class MathObject:
     text = "MathObject default"
     addon = "[]"
@@ -23,8 +29,10 @@ class MathObject:
                 logger.exception("An exception has occurred in MathObject:")
                 print("\nSomething went wrong. Check your submission information.")
     
-    def Solve(self) -> float:
-        return 0.1;
+    # @abstractmethod
+    def Solve(self) -> float: pass
+    @classmethod
+    def complete(self) -> object: return None
 
 class angle:
     '''

@@ -33,17 +33,35 @@ class CosineSide(MathObject):
         b = evaluate(question("side b"))
         c = evaluate(question("side c"))
         angle_a = raddec(evaluate(question("angle a")))
-        return sqrt((b**2)+(c**2)-(2*b*c*cos(angle_a)));
+        return sqrt((b**2)+(c**2)-(2*b*c*cos(angle_a)))
 
 class CosineAngle(MathObject):
     text = "Cosine: Angle"
     addon = "[a, b, c] [SSS]"
     def Solve(self) -> float:
-        a = evaluate(question("side a"))
-        b = evaluate(question("side b"))
-        c = evaluate(question("side c"))
+        a, b, c = request_bulk(
+            [
+                "Side a",
+                "Side b",
+                "Side c"
+            ]
+        )
 
-        return degdec(acos(((b**2)+(c**2)-(a**2))/(2*b*c)));
+        angle_a, angle_b, angle_c = self.complete(a, b, c)
+
+        equality("Angle A", angle_a)
+        equality("Angle B", angle_b)
+        equality("Angle C", angle_c)
+
+        return angle_a;
+
+    @classmethod
+    def complete(cls, a:float, b:float, c:float) -> tuple[float, float, float]:
+        angle_a = degdec(acos(((b**2)+(c**2)-(a**2))/(2*b*c)))
+        angle_b = degdec(acos(((a**2)+(c**2)-(b**2))/(2*a*c)))
+        angle_c = degdec(acos(((b**2)+(a**2)-(c**2))/(2*b*a)))
+
+        return (angle_a, angle_b, angle_c)
 
 class SineAngle(MathObject):
     text = "Sine: Angle"
@@ -70,27 +88,23 @@ class PythagoreanTheorem(MathObject):
     addon = "[a, b, or c]"
     def Solve(self) -> float:
         print("Press Enter for nulls. At least two must have values.")
-        a = evaluate(question("side a (required)"))
-        b = question("side b")
-        c = question("side c")
+        a, b, c = request_bulk(["side a (required)", "side b", "side c"], allow_none=True)
 
         if (a and b) and not c:
-            answer = sqrt((a**2)+(evaluate(b)**2))
+            return sqrt((a**2)+(b**2))
         elif (a and c) and not b:
-            answer = sqrt((evaluate(c)**2)-(a**2))
-        else:
-            print("Entered incorrectly. a must have a value, and either b or c has to have a value. b and c cannot simultaneously store a value.")
-            logger.debug("User entered incorrect value; A *must* have a value, and either B or C have to hava value. B and C cannot both have a value.")
-            return False;
-        return answer;
+            return sqrt((c**2)-(a**2))
+        
+        print("Entered incorrectly. a must have a value, and either b or c has to have a value. b and c cannot simultaneously store a value.")
+        logger.debug("User entered incorrect value; A *must* have a value, and either B or C have to hava value. B and C cannot both have a value.")
+        return False;
+
 
 class QuadraticFormula(MathObject):
     text = "Quadratic Formula"
     addon = "[a, b, c]"
     def Solve(self) -> sp.Number:
-        a = sympify(question("a"))
-        b = sympify(question("b"))
-        c = sympify(question("c"))
+        a, b, c = request_bulk(["a", "b", "c"])
 
         positive, negative = self.Answer(a, b, c)
 
@@ -141,21 +155,52 @@ class ParametricEquation(MathObject):
     text = "Parametric Equations"
     addon = ""
     def Solve(self) -> float:
-        t_min = float(question("T minimum value"))
-        t_max = float(question("T maximum value"))
-        t_step = float(question("T step value"))
-        x = str(question("Equation for x (t is variable t)="))
-        y = str(question("Equation for y (t is variable t)="))
-        listx = []
-        listy = []
-        t_range = np.arange(t_min, t_max+t_step, t_step)
-        for t in t_range:
-            listx.append(str(eval(x)))
-            listy.append(str(eval(y)))
+        t_min, t_max, t_step, x, y = request_bulk([
+            "Give the minimum value of T",
+            "Give the maximum value of T",
+            "Give the step value for T",
+            "Give the equation for x (t is t)",
+            "Give the equation for y (t is t)"
+        ])
+
+        t = sp.Symbol('t')
+        t_range = self._floatable_range(t_min, t_max, t_step)
+
+        listx = self._fill_equations(x, t, t_range)
+        listy = self._fill_equations(y, t, t_range)
+
         print("| t | x | y |")
-        for count,i in enumerate(t_range):
+        for count,i in enumerate( t_range ):
             print(f"| {i} | {listx[count]} | {listy[count]} |")
-        return SuccessionType.NO_COPY;
+            
+        return SuccessionType.NO_COPY
+
+    @classmethod
+    def _fill_equations(cls, equa: sp.Expr, var: sp.Symbol, the_range: list):
+        return [equa.subs(var, i) for i in the_range]
+            
+    @classmethod
+    def _floatable_range(cls, start: sp.Expr, stop: sp.Expr, step: sp.Expr):
+        num = start
+        values = []
+        while (num <= stop) if (step >= 0) else (num >= stop):
+            values.append(num)
+            num+=step
+        return values
+    
+class ParametricToCartesian(MathObject):
+    text = "Parametric to Cartesian"
+    addon = "[x_equation, y_equation] -> t"
+    def Solve(self) -> float:
+        x_equation, y_equation = request_bulk([
+            "Give the equation for x (t is t)",
+            "Give the equation for y (t is t)"
+        ])
+
+        t = sp.Symbol('t')
+        t_1 = sp.solve(x_equation, t)
+        equality()
+        t_2 = sp.solve(y_equation, t)
 
 class CountTriangles(MathObject):
     text = "Count Triangles"
@@ -336,7 +381,7 @@ class DistanceFormula(MathObject):
     addon = "[x1, y1] [x2, y2]"
     def Answer(self, x1, y1, x2, y2) -> float:
         return sp.sqrt((x2-x1)**2 + (y2-y1)**2);
-
+        
     def Solve(self) -> float:
         x1, x2, y1, y2 = request_bulk(["x1", "x2", "y1", "y2"])
         return self.Answer(x1, y1, x2, y2);
@@ -434,7 +479,7 @@ class SolvePolynomial(MathObject):
 
         x = sp.Symbol('x')
         # Start polynomial using the constant
-        polynomial = sympify(c)
+        polynomial = sympify_exc(c)
         # Add each polynomial term one by one
         for count,i in enumerate(numbered_objects): polynomial += (x**(count+1))*i
         # Solve for x
@@ -455,6 +500,11 @@ class SolvePolynomial(MathObject):
         return zeros;
 
 class SubX(MathObject):
+    '''
+    Substitute X for a different value
+    repeatedly until the user requests
+    to exit
+    '''
     text = ""
     addon = ""
     def __init__(self, expression: sp.Expr, replaced_term: sp.Symbol):
@@ -468,3 +518,218 @@ class SubX(MathObject):
             send(self.expression.subs(self.x, replaceable))
             print()
         return SuccessionType.NO_COPY;
+
+class SolveWave(MathObject):
+    text = "Solve Wave"
+    addon = "[A, B, Φ, ω]"
+    def Solve(self) -> float:
+        a: sp.Expr; b: sp.Expr; phi: sp.Expr; omega: sp.Expr;
+        
+        a, b, phi, omega = request_bulk([
+            "Give A",
+            "Give B",
+            "Give Φ",
+            "Give ω"
+        ])
+
+        equality("Amplitiude", sp.Abs(a))
+        equality("Vertical Shift", b)
+        equality("Phase Shift", (phi*-1)/omega)
+        equality("Period", sp.Abs( (2*sp.pi)/omega ))
+        equality("Range", f"[{(a*-1)+b}, {a+b}]")
+
+        return SuccessionType.NO_COPY;
+        
+
+# ==========
+# IDENTITIES
+# ==========
+
+class SinDifference(MathObject):
+    text = "Sin Difference"
+    addon = "[α, β, +-]"
+    def Solve(self) -> float:
+        a,b = request_bulk([
+            "Give α",
+            "Give β"
+        ])
+
+        positive = request_boolean("Are we adding the values?")
+
+        equation_1: sp.Expr = sp.sin(a)*sp.cos(b)
+        equation_2: sp.Expr = sp.cos(a)*sp.sin(b)
+
+        answer: sp.Expr = sp.simplify( (equation_1+equation_2) if positive else (equation_1-equation_2) )
+
+        equality("answer (symbolic)", answer)
+        equality("Answer (Decimate)", answer.evalf())
+
+        return answer.evalf();
+
+class CosDifference(MathObject):
+    text = "Cos Difference"
+    addon = "[α, β, +-]"
+    def Solve(self) -> float:
+        a,b = request_bulk([
+            "Give α",
+            "Give β"
+        ])
+        
+        # We don't care about the user's opinion; we're
+        # obviously gonna do the opposite of that crap--
+        # Nah, I'm just kidding, it's part of the equation
+        positive = not request_boolean("Are we adding the values?")
+
+        equation_1: sp.Expr = sp.cos(a)*sp.cos(b)
+        equation_2: sp.Expr = sp.cos(a)*sp.cos(b)
+
+        answer: sp.Expr = sp.simplify( (equation_1+equation_2) if positive else (equation_1-equation_2) )
+
+        equality("answer (symbolic)", answer)
+        equality("Answer (Decimate)", answer.evalf())
+
+        return answer.evalf();
+
+class PolarCoorToCoords(MathObject):
+    text = "Polar Coords to Coords"
+    addon = "[hyp, Φ]"
+    def Solve(self) -> float:
+        hyp, theta = request_bulk([
+            "Give the hypotenuse",
+            "Give the absolute angle"
+        ])
+        temp_theta = sp.sympify(f"{raddec(theta)}")
+        x: sp.Expr = hyp*sp.cos(temp_theta)
+        y = hyp*sp.sin(temp_theta)
+
+        equality('x', x)
+        equality('x [estimate]', x.evalf())
+
+        equality('y', y)
+        equality('y [estimate]', y.evalf())
+
+        return SuccessionType.NO_COPY
+    
+class MagnitudeOfVector(MathObject):
+    text = "Magnitude of Vector"
+    addon = "[x, y]"
+    def Solve(self) -> float:
+        x, y = request_bulk([
+            "Give x",
+            "Give y"
+        ])
+
+        answer = self.complete(x, y)
+        equality("answer", answer)
+
+        return answer
+    
+    @classmethod
+    def complete(cls, x, y):
+        return sp.sympify(f"sqrt(({x})**2 + ({y})**2)")
+    
+class DotProduct(MathObject):
+    text = "Dot Product"
+    addon = "<v1, v2>, <w1, w2>"
+    def Solve(self) -> float:
+        v1, v2, w1, w2 = request_bulk([
+            "Give v1",
+            "Give v2",
+            "Give w1",
+            "Give w2",
+        ])
+        answer = self.complete(v1, v2, w1, w2)
+
+        equality("answer (exact)", answer)
+        equality("answer (predicted)", answer.evalf())
+        return answer.evalf()
+    
+    @classmethod
+    def complete(cls, v1, v2, w1, w2) -> sp.Expr:
+        return sp.sympify(f"({v1}*{w1}) + ({v2}*{w2})")
+    
+class VectorOperations(MathObject):
+    text = "Vector Operations"
+    addon = "[v1, v2, w1, w2] [+, -]"
+    def Solve(self) -> float:
+        v1, v2, w1, w2 = request_bulk([
+            "Give v1",
+            "Give v2",
+            "Give w1",
+            "Give w2",
+        ])
+
+        add = request_boolean("Is this add?")
+        if add:
+            answer = ((v1 + w1), (v2 + w2))
+        else:
+            answer = ((v1 - w1), (v2 - w2))
+        
+        equality("answer", answer)
+        return answer
+
+class Projection(MathObject):
+    text = "Projection"
+    addon = "<v1, v2>, <w1, w2>"
+    def Solve(self) -> float:
+        v1, v2, w1, w2 = request_bulk([
+            "Give v1",
+            "Give v2",
+            "Give w1",
+            "Give w2",
+        ])
+        dot_product = DotProduct.complete(v1, v2, w1, w2)
+
+        proj_w_v = self.project(dot_product, w1, w2)
+        proj_v_w = self.project(dot_product, v1, v2)
+
+        in_between = self.in_between(dot_product, MagnitudeOfVector.complete(v1, v2), MagnitudeOfVector.complete(w1, w2))
+
+        equality("Dot Product", dot_product)
+
+        equality("Proj w v", proj_w_v[0])
+        equality("Proj w v [factored]", proj_w_v[1])
+        equality("Proj w v [predicted]", proj_w_v[2])
+
+        equality("Proj v w", proj_v_w[0])
+        equality("Proj v w [factored]", proj_v_w[1])
+        equality("Proj v w [predicted]", proj_v_w[2])
+
+        equality("In Between [exact]", in_between)
+        equality("In Between [predicted]", in_between.evalf())
+
+        return SuccessionType.NO_COPY
+    
+    def in_between(self, dot_product, v_magnitude, w_magnitude):
+        inner = sp.sympify(f"{dot_product} / ({v_magnitude}*{w_magnitude})")
+        before_degrees = sp.acos(inner)
+        return sp.deg(before_degrees)
+    
+    @classmethod
+    def project(cls, dot_product, v1, v2) -> tuple[str, tuple[float, float], tuple[float, float]]:
+        factor = sp.sympify(f'{dot_product} / (({v1})**2 + ({v2})**2)')
+        answer1 = f"{factor}<{v1}, {v2}>"
+        answer2 = (factor*v1, factor*v2)
+        answer3 = tuple(i.evalf() for i in answer2)
+        return (answer1, answer2, answer3)
+    
+class VectorWork(MathObject):
+    text = "Vector Work"
+    addon = "[force, distance, angle]"
+    def Solve(self) -> float:
+        f, d, angle = request_bulk([
+            "Give the force",
+            "Give the distance",
+            "Give the angle"
+        ])
+        work = self.complete(f, d, sp.rad(angle))
+        equality("work", work)
+        return work
+
+    @classmethod
+    def complete(cls, f, d, angle):
+        '''
+        Angle should be in radians
+        '''
+        fd = sp.sympify(f"{f}*{d}")
+        return fd*sp.cos(angle)

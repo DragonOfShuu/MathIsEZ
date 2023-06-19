@@ -37,7 +37,10 @@ class Preferences(menu):
 class header_menu(menu):
     text = "Header"
     def __init__(self, object_list: list[MathObject | menu]):
-        object_list.append(Preferences)
+        object_list.extend([
+            "-",
+            Preferences
+        ])
         super().__init__(object_list)
     
     def extra(self):

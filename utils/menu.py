@@ -18,7 +18,10 @@ class menu:
         while True:
             self.extra()
             for count,i in enumerate(self.object_list):
-                print(f"[{count}] {i.text} {i.addon}")
+                if i == "-":
+                    print()
+                else:
+                    print(f"[{count}] {i.text} {i.addon}")
             print("[-1] Exit")
 
             try:
